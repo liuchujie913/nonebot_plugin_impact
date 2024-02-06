@@ -1,0 +1,78 @@
+### 你好！（我是药娘不是男娘）
+"""
+我克隆了这个仓库，在代码中加入了一些我自己的想法，但奈何我只是个15岁的小朋友，能力不够，改出来有一些报错我不知道怎么解决
+我想要你帮帮我，如果可以替我完成我可以给你钱钱的QwQ
+"""
+我添加的方法：
+
+-init-.py:
+
+on_command(
+    "除你武器",
+    aliases={"Expelliarmus"},
+    priority=20,  # 优先级
+    block=True,  #是否阻塞
+    handlers=[impart.Expelliarmus]  # 处理该命令的函数
+)
+
+handle.py：
+
+   banned_users = {}
+
+    # 定义一个函数来检查用户是否被禁用  
+    def is_user_banned(user_id: int) -> bool:
+        return user_id in banned_users and banned_users[user_id] > time.time()
+
+        # 定义一个函数来禁用用户  
+
+    def ban_user(user_id: int, duration: int) -> None:
+        banned_users[user_id] = time.time() + duration
+
+        # 定义一个函数来解除用户的禁用状态  
+
+    def unban_user(user_id: int) -> None:
+        if user_id in banned_users:
+            del banned_users[user_id]
+
+            # 更新Impart类，添加除你武器方法  
+
+    class Impart:
+        penalties_impact: bool = getattr(get_driver().config, "isalive", False)
+
+        @staticmethod
+        async def ban_user_for_one_minute(bot: Bot, user_id: int) -> None:
+            ban_user(user_id, 60)  # 禁用一分钟  
+            await bot.send_group_msg(
+                group_id=user_id,
+                message=MessageSegment.text("你被缴械了，一分钟内无法使用本插件功能。")
+            )
+
+        @staticmethod
+        async def except_your_weapon(bot: Bot, event: GroupMessageEvent) -> None:
+            message = event.get_message()
+            at_users = message.extract_at_users()
+
+            if not at_users:
+                # 如果没有@任何人，发送消息  
+                await bot.send_group_msg(
+                    group_id=event.group_id,
+                    message=MessageSegment.text("缴械咒不是这样用的，笨蛋。")
+                )
+            else:
+                # 如果有@任何人，对他们执行禁用操作  
+                for user_id in at_users:
+                    if not is_user_banned(user_id):
+                        # 如果用户还没有被禁用，则禁用他们一分钟  
+                        await Impart.ban_user_for_one_minute(bot, user_id)
+
+                        # 可以在某个地方周期性地检查并解除被禁用的用户  
+
+    def check_and_unban_users():
+        now = time.time()
+        for user_id, ban_time in list(banned_users.items()):
+            if ban_time <= now:
+                # 如果禁用时间已过，则解除禁用  
+                unban_user(user_id)
+
+
+加入了这些以后的我又处理了3个小时的报错，但是还剩下一些是我实在不会了的QwQ，求求你啦~
